@@ -1,17 +1,29 @@
-name: Build APK
-on: [push]
+name: Build Kivy APK
+on: [push]  # 代码推送时触发
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build APK
-      uses: ArtemSBulgakov/buildozer-action@v1
-      with:
-        target: android
-        command: debug
-    - name: Upload APK
-      uses: actions/upload-artifact@v2
-      with:
-        name: app-debug
-        path: bin/*.apk
+      - uses: actions/checkout@v2  # 拉取代码
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk
+          pip install buildozer
+          
+      - name: Build APK with Buildozer
+        run: |
+          buildozer -v android debug
+          
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: kivy-apk
+          path: bin/*.apk
